@@ -1,5 +1,31 @@
 # Changelog
 
+## v2.0.0 - PC Suite 7.0.6 support
+
+Continuation of the upstream 7.0.5 project, adapted to the **7.0.6 CN build**
+(installed via `C:\Program Files (x86)\pcsuite`, app dated 2026-10-15).
+
+- Verified upstream patch set against 7.0.6: 1590/1636 exact patches applied
+  as-is; 31 strings vivo changed/reverted were re-targeted, 15 author-preference
+  date-format patches dropped (vivo rewrote that code).
+- 7.0.6 strings translated (~620 new patches): keyboard-collab dialog, calendar
+  labels/AM-PM/event blocks, backup/restore dialogs and toasts, Recorder smart
+  naming + AI summary errors, album import/sync guide, photo-sync dialogs,
+  selection counters, connect-dialog links (USB/QR tips), AI-search error table,
+  notes errors, share dialogs, webview debug menu, sync-paused banners.
+- **BlueLM Copilot panel** translated end to end: welcome texts, all cold-start
+  suggestion chips (~370), deep-thinking toggle, upload/parse states, errors.
+- Cloud-config gate patched: the welcome/chips config pushed by vivo's servers
+  (Chinese, version-guarded) no longer overrides the local translated config.
+- `vivoControl` (Remote PC) pipeline verified on 7.0.6 (20/20 patches).
+- Locale injection verified on 7.0.6: 213 keys missing from en_US, 0 uncovered.
+- New `scripts/install.ps1`: generic end-user installer (auto-detects install
+  folder, backs up to `.old`, installs both asars, flips vivoScreen.exe to
+  English, sets config.ini, restarts; `-Restore` rolls everything back).
+- New `scripts/gen_missing_keys.py`: regenerates `missing_keys.json` from any
+  7.0.6 install so builds are reproducible.
+- CSS pipeline made tolerant of files removed in 7.0.6 (137.1d62d6b9.css).
+
 ## v1.1.3
 
 - System-tray menu fully English (`Open main window` / `Exit app`) — the

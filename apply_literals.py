@@ -302,6 +302,7 @@ def main():
 
 
     # patches directs (idempotents)
+    failed_patches = []
     for p in patches:
         fn = p['file']
         t = changed.get(fn) or txt(fn)
@@ -310,9 +311,14 @@ def main():
             continue
         if c != p.get('expect', 1):
             print('ECHEC patch %s count=%d attendu=%s  old=%r' % (fn, c, p.get('expect', 1), p['old'][:60]))
-            return 1
+            failed_patches.append(p)
+            continue
         changed[fn] = t.replace(p['old'], p['new'])
         print('patch ok: %s x%d  %r' % (fn.rsplit('/', 1)[-1], c, p['old'][:60]))
+    if failed_patches:
+        json.dump(failed_patches, open(os.path.join(HERE, 'failed_patches.json'), 'w', encoding='utf-8'),
+                  ensure_ascii=False, indent=1)
+        print('patches en ECHEC: %d (dictes -> failed_patches.json)' % len(failed_patches))
 
     # securite : un bundle minifie d'origine ne contient aucun retour a la
     # ligne reel. Tout \n/\r apparu provient d'une traduction inseree dans une

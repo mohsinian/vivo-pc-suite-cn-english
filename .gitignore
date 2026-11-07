@@ -6,3 +6,8 @@ patched/
 *.bak*
 *.log
 report_literals.txt
+vc_orig/
+vc_patched/
+missing_keys.json
+my_build_artifacts/
+*.new

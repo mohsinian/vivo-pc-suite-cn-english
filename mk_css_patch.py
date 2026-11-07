@@ -104,7 +104,11 @@ def main():
             return fh.read(int(m['size']))
 
         for rel, marker, override in JOBS:
-            data = get(rel)
+            try:
+                data = get(rel)
+            except (KeyError, TypeError):
+                print('fichier absent de cette version, ignore:', rel)
+                continue
             if marker.encode('utf-8') in data:
                 print('deja presente, ignore:', rel)
                 continue

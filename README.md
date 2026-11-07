@@ -1,137 +1,134 @@
-# Vivo PC Suite 7.0.5 — English translation
+# Vivo PC Suite 7.0.6 (CN) — English translation
 
-Unofficial English translation of the **Chinese-market version** of Vivo PC Suite 7.0.5
-(`vivo办公套件`, the build shipped for phones with a China ROM).
+Unofficial English translation of the **Chinese-market version** of vivo PC Suite
+(`vivo办公套件`), verified and extended for **version 7.0.6** — the build shipped
+for phones with a China ROM (OriginOS CN), which has **no in-app language
+setting and no official English client**.
 
-> **🤖 Made with 95% AI.** This entire project — every translated string, the
-> patching/build scripts, the validation tooling and this README — was produced by AI. ;
-> the AI did all the work, and only the download/install steps and the final
-> screenshots come from a real human run of the app.
-
-> **Not your version?** If your phone is a global/international model, your PC Suite
-> already speaks English — this project targets the CN-ROM desktop app only.
+> **Community continuation.** This project is built on the excellent work of
+> [**Lordlorio's Vivo-PC-Suite-PC-Companion-Suite-Chinese-Version-English-Translation**](https://github.com/Lordlorio/Vivo-PC-Suite-PC-Companion-Suite-Chinese-Version-English-Translation),
+> which targets PC Suite 7.0.5. All core tooling, the translation pipeline and
+> most patch data come from that project (MIT). This repository adapts the
+> pipeline to **7.0.6** and adds ~620 new patches for strings vivo introduced
+> or reverted after that release. Please star the upstream project too.
 
 **Unofficial — not affiliated with or endorsed by vivo.**
 
-## Download
+## What is translated
 
-Get the `.rar` from the [Releases page](../../releases) (~365 MB).
-Extract it anywhere. Inside you will find exactly two files:
+Everything user-facing that could be found in the app:
 
-- `VivoEnglishPatcher.exe` — the one-click installer/patcher (no Python needed),
-- `app.asar` — the translated English application archive.
+- Main window: Home, Connect dialog (QR / USB), Notes, Calendar, Album, To-dos,
+  Recorder, Settings, all menus, dialogs, toasts and tooltips
+- **BlueLM Copilot panel**: welcome text, all ~370 cold-start suggestion chips,
+  deep-thinking toggle, upload/parsing states, error messages
+- Phone Mirroring window (`vivoScreen.exe`), Remote PC window (`vivoControl`)
+- Backup/restore flows, AI-search error table, file-manager errors, cloud-sync
+  banners, the photo-sync guide
 
-(The two `.py` patcher sources live in this repository for review and
-rebuilding — they are intentionally **not** part of the release download.)
+Deliberately left untouched: internal logs, telemetry, AI prompt templates,
+lunar-calendar parser tables, and the `动图_` filename prefix (a functional
+live-photo marker — translating it would break detection).
 
-## Screenshots
+## Download & install (Windows)
 
-| File Manager | Settings — Device connectivity |
-|:---:|:---:|
-| <img src="screenshots/file-manager.png" alt="File Manager" width="450"> | <img src="screenshots/settings-device-connectivity.png" alt="Settings - Device connectivity" width="450"> |
+Get the latest release from the [Releases page](../../releases). It contains:
 
-| Screen mirroring menu | To-dos — reminders |
-|:---:|:---:|
-| <img src="screenshots/screen-mirroring.png" alt="Screen mirroring menu" width="240"> | <img src="screenshots/todos-reminders.png" alt="To-dos - reminders" width="450"> |
+- `app.asar` — translated main archive (~365 MB)
+- `app_vc.asar` — translated vivoControl (Remote PC) archive (~48 MB)
+- `install.ps1` — one-click installer (no Python/Node needed)
+- `SHA256SUMS.txt` — checksums
 
-## Install (Windows)
+Steps:
 
-No manual file copying needed — the patcher does everything:
+1. Put `install.ps1`, `app.asar` and `app_vc.asar` in one folder.
+2. Right-click `install.ps1` → **Run as administrator** (or run
+   `powershell -ExecutionPolicy Bypass -File .\install.ps1` from an admin prompt).
+3. The installer finds the install folder automatically, closes vivo,
+   backs every original up as `.old`, installs the translated archives,
+   switches the mirroring window to English, sets `config.ini` to
+   `1033 / en_US` and restarts vivo PC Suite.
 
-1. Right-click `VivoEnglishPatcher.exe` → **Run as administrator**.
-2. Check the **installation folder** (it is auto-detected from Windows'
-   own records; use `Browse...` only if it points somewhere wrong).
-3. The translated `app.asar` sitting next to the patcher is picked up
-   automatically.
-4. Click **Apply English Patch** and confirm.
-
-What the patcher does, in order: closes Vivo PC Suite (politely, and it
-stops if something refuses to close) → backs every original up next to
-itself with a `.old` extension → installs the English `app.asar` →
-switches Phone Mirroring (`vivoScreen.exe`) to English → sets
-`config.ini` to `1033 / en_US` → restarts Vivo PC Suite. The window theme
-follows your Windows light/dark setting, with a manual toggle.
-
-**Restore:** click **Restore Backups** (Vivo is closed and restarted the
-same way) — everything goes back to the pre-patch state.
+**Restore the original Chinese version:** run `install.ps1 -Restore` as admin.
 
 **Notes**
-- Applies to **version 7.0.5 (CN installer)** only.
-- An official app update will overwrite the translation — just re-apply after updating.
-- If Windows SmartScreen warns about the patcher (it is unsigned, as with
-  most community tools), that is expected; the `.py` sources are in this
-  repo so anyone can read and rebuild it.
+
+- Applies to **PC Suite 7.0.6 (CN installer)**. For 7.0.5 use the
+  [upstream project](https://github.com/Lordlorio/Vivo-PC-Suite-PC-Companion-Suite-Chinese-Version-English-Translation/releases).
+- An official app update will overwrite the translation — re-apply after
+  updating (and check for a new release here first).
+- `vivoScreen.exe`'s Authenticode signature will show `HashMismatch` after
+  patching — expected for any post-sign byte edit, harmless.
+- The BlueLM Copilot's **chat replies** come from vivo's cloud model and may
+  still be Chinese; ask it once per conversation to reply in English.
+  Follow-up suggestion chips pushed per-answer are also server-side.
 
 ## How it works
 
-PC Suite is an **Electron** app: virtually all UI code ships in a single archive,
-`resources/app.asar`. The translation:
+PC Suite is an **Electron** app: virtually all UI code ships in `resources/app.asar`.
+The translation replaces exact string spans and locale values inside the archive:
 
-1. **Unpacks** the archive and translates every hardcoded Chinese string plus the
-   `zh_CN` locale files — using the app's own official `en_US` strings as the
-   reference wherever they exist (no machine translation).
-2. **Fixes layout bits** that break with longer English labels (HTML page titles,
-   a few CSS widths).
-3. **Filters Chinese values pushed at runtime by vivo's servers.** The app fetches
-   a cloud config (`/config/all`) whose Chinese copy (connection dialog, login
-   carousel…) *overwrites* the translated local text. Values containing CJK
-   characters are now ignored, so the app falls back to the translated strings.
-   Functional configs (device models, intervals, images…) are untouched.
+1. **Exact patches** (`patches.json`, 2168 entries): `original → English` pairs with
+   occurrence counts — the build fails loudly if any string drifts.
+2. **Locale injection**: keys present in `zh_CN` but missing from vivo's own
+   `en_US` locale are filled from the project's translations.
+3. **Layout fixes**: a few CSS overrides for longer English labels.
+4. **Cloud-config gate**: vivo's servers push Chinese UI text (welcome screen,
+   suggestion chips) that overrides local values at runtime. The config gate is
+   patched to always use the local, translated config instead.
 
-Every replacement lives in `patches.json` / `literals.json` as an exact
-`original → English` pair with an occurrence count, so the build fails loudly if
-anything drifts.
+Nothing functional is touched: connection logic, SQL, telemetry and native
+binaries stay byte-identical (except the single `zh-CN`→`en-US` locale flip in
+`vivoScreen.exe`).
 
 ## Build from source
 
-Requirements: **Python 3**, **Node.js**, and your own copy of the untouched
-`app.asar` from a 7.0.5 CN install.
+Requirements: **Python 3**, **Node.js**, and an untouched `app.asar` from a
+7.0.6 CN install (your own installation provides it).
 
 ```bat
-set PC_ASAR_SRC=C:\path\to\app.asar.original
-set PC_ASAR_DST=C:\path\to\pcsuite\resources\app.asar
+set PC_ASAR_SRC=C:\path\to\original\app.asar
+set PC_ASAR_DST=C:\path\to\output\app.asar
 
-python inject_locales.py
-python apply_literals.py --apply
-python mk_css_patch.py
-python build_asar.py
+py scripts\gen_missing_keys.py "%PC_ASAR_SRC%" .
+py inject_locales.py
+py apply_literals.py --apply
+py mk_css_patch.py
+py build_asar.py
 node --check patched\dist\electron\renderer.js
-python verify_asar.py "%PC_ASAR_DST%.new"
-python check_newlines.py "%PC_ASAR_DST%.new"
+py verify_asar.py "%PC_ASAR_DST%.new"
+py check_newlines.py "%PC_ASAR_DST%.new"
 ```
 
-Then quit PC Suite and replace `app.asar` with `app.asar.new`.
+`build_asar.py` writes `app.asar.new` next to `PC_ASAR_DST` and self-verifies
+(header, contiguity, integrity hashes, no stray newlines). The vivoControl
+archive is rebuilt analogously with `vc_unpack.py` → `vc_apply.py` →
+`build_vc_asar.py` (env vars `VC_ASAR_SRC` / `VC_ASAR_DST`).
 
 | Script | Role |
 |---|---|
-| `inject_locales.py` | Rebuilds `locales-en_US.js.new` (official English locale) |
-| `apply_literals.py --apply` | Applies all translations → `patched\` (validation, fails on mismatch) |
-| `mk_css_patch.py` | CSS overrides — **must run after** `apply_literals` (it resets `patched\`) |
-| `build_asar.py` | Rebuilds the archive → `<PC_ASAR_DST>.new`, self-verifies |
-| `verify_asar.py` | Checks en_US key coverage (2 931 keys, 0 missing) |
-| `check_newlines.py` | Guards against stray newlines in minified bundles |
-| `patches.json`, `literals.json`, `map_en*.json`, `map_files.json`, `skip.json` | The translations themselves |
+| `scripts/gen_missing_keys.py` | Builds `missing_keys.json` from the installed asar (zh↔en locale diff) |
+| `inject_locales.py` | Fills en_US locale gaps → `locales-en_US.js.new` |
+| `apply_literals.py` | Applies all 2168 patches → `patched/` (fails loudly on drift) |
+| `mk_css_patch.py` | CSS overrides for longer English labels |
+| `build_asar.py` | Rebuilds the archive, self-verifies |
+| `verify_asar.py` / `check_newlines.py` | Final integrity gates |
+| `scripts/install.ps1` | End-user installer (also handles vivoScreen + config.ini) |
+| `map_en*.json`, `literals.json`, `patches_vc.json`, `skip.json` | The translation data |
 
-## Made with 95% AI
+## Attribution & license
 
-This project was created entirely by AI. That includes:
-
-- **Every translated string** (hardcoded literals, `zh_CN` locale files, cloud-config filtering)
-- **All tooling**: `inject_locales.py`, `apply_literals.py`, `mk_css_patch.py`, `build_asar.py`, `verify_asar.py`, `check_newlines.py`
-- **All data files**: `patches.json` (1 135 pairs), `literals.json`, `map_en*.json`, `skip.json`
-- **This README**, the release notes, and the commit history
-
-There was no human-in-the-loop editing pass: the AI did 95% of the work.
-The only human contributions are running the app to capture the screenshots
-above and clicking the download/install buttons described in this guide.
-
-If you spot an error or an untranslated string, please open an issue — the AI
-will fix it.
+- Original 7.0.5 project, tooling and translation data:
+  **[Lordlorio/Vivo-PC-Suite-...-English-Translation](https://github.com/Lordlorio/Vivo-PC-Suite-PC-Companion-Suite-Chinese-Version-English-Translation)** (MIT) —
+  this repository is a derivative work; the MIT license applies to everything
+  inherited from it.
+- 7.0.6 adaptation, new patches (rounds 1–5) and the copilot/welcome
+  translation: this repository's contributors.
 
 ## Disclaimer
 
-This project only contains translation data and patching tooling written for it.
-The attached `app.asar` is a modified copy of vivo's proprietary application,
+This project contains translation data and patching tooling only. The release
+assets include a **modified copy of vivo's proprietary application archives**,
 provided solely so that users who legitimately own the software can run it in
-English; all rights to the original application remain with vivo. Use at your own
-risk, keep a backup of the original file, and report issues in the tracker.
+English; all rights to the original application remain with vivo. Use at your
+own risk, keep your `.old` backups, and report issues in the tracker.
